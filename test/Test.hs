@@ -1,13 +1,21 @@
 {-# LANGUAGE RoleAnnotations #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE GADTs #-}
 module Main where
 
 import Data.Type.Role.Nominal
 import Data.Type.Role.Representational
 import Data.Type.Role.Phantom
 
+import Data.Type.Role.Bi
+
 import Data.Map (Map)
 import Data.Proxy
 import Data.Set (Set)
+
+data Witness c f where
+  Witness :: c f => Witness c f
 
 testMaybe :: (Nominality Maybe, Representation Maybe, NonPhantomicity Maybe)
 testMaybe = (Nominality, Representation, NonPhantomicity)
@@ -18,11 +26,22 @@ testEithera = (Nominality, Representation, NonPhantomicity)
 testEither :: (Nominality Either, Representation Either, NonPhantomicity Either)
 testEither = (Nominality, Representation, NonPhantomicity)
 
+testEitherBi :: (Witness Nominal2 Either,
+                 Witness Representational2 Either,
+                 Witness (TypeRoles2 Representational Representational) Either,
+                 Witness (TypeRoles2 NonPhantom NonPhantom) Either)
+testEitherBi = (Witness, Witness, Witness, Witness)
+
 testMapk :: (Nominality (Map k), Representation (Map k), NonPhantomicity (Map k))
 testMapk = (Nominality, Representation, NonPhantomicity)
 
 testMap :: (Nominality Map, NonRepresentation Map, NonPhantomicity Map)
 testMap = (Nominality, NonRepresentation, NonPhantomicity)
+
+testMapBi :: (Witness Nominal2 Map,
+              Witness (TypeRoles2 NonRepresentational Representational) Map,
+              Witness (TypeRoles2 NonPhantom NonPhantom) Map)
+testMapBi = (Witness, Witness, Witness)
 
 testSet :: (Nominality Set, NonRepresentation Set, NonPhantomicity Set)
 testSet = (Nominality, NonRepresentation, NonPhantomicity)
